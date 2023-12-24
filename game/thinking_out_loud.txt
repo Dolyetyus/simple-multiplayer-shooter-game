@@ -1,0 +1,101 @@
+FEEDBACK:
+Accepted, on condition that you do not make the server responsible for tracking the position of the players, powerups etc, 
+but you let the clients handle the game logic, with the server functioning only as a relay of lower-level events 
+(something like start and stop events for when the player starts/stop going in a direction, like starting pressing left to go left, and then releasing the key). 
+Generating random powerups of course needs a bit of server help: you can have the server randomly announce a powerup to the clients and its location,
+but it is then the clients' job to handle its effects once a player makes use of it.
+
+Another condition is to support 3+ players. In a 2-player game, if one player disconnects, the game basically ends, 
+while with a 3+ player game, your game should be able to continue even after one of the players leaves and then joins back, 
+demonstrating the ability to be resilient.
+
+THINGS TO DO NOW 23-05-2023
+
+-The bullets have to be fixed - they have to disappear for everybody - idk how to fix that and its not that big of a deal
+-Messages have to be dropped if they are incorrect
+
+
+##################################################################
+
+- The clients keep track of both players using the player class which should include attributes such as:
+Class Player
+  player.position()
+  player.health()
+  player.direction()
+  player.shoot()
+  player.hit()
+  player.powerup()
+  
+Class Bullet
+  bullet.speed()
+  bullet.damage()
+  bullet.hit()
+  
+etc.
+
+##################################################################
+
+- The server should only send the message to the players, the client is responsible of tracking the position.
+Example:
+The info will be tracked in Client A:
+  player_x_position = [100, 200]   (where [x, y] are coordinates)
+  player_y_position = [200, 100]
+The info will be tracked in Client B:
+  player_x_position = [100, 200]
+  player_y_position = [200, 100]
+
+Client A will only be able to send messages that will affect Player X's position and status. An example of message may look like this:
+"MOVE PLAYERX 100 200 A FALSE NONE"
+{moveflag }{player_id} {x_coordinate} {y_coordinate} {direction(W, A, S, D, I -for idle)} {shoot} {powerup (types NONE, 1, 2, 3...)}.
+
+Then server will receive this message and direct this message to Client B, the client B will process this message and change the player X's position.
+Let's say, with each position field, the player moves 10 pixels in that direction. 
+So, the info will be like this:
+Client A:
+  player_x_position = [90, 200]   (In client code, there should be something like if X is pressed then change the value for that position of the player)
+  player_y_position = [200, 100]
+Client B:
+  player_x_position = [90, 200]   (Received messages will be handled in the same way)
+  player_y_position = [200, 100]
+  
+##################################################################
+
+- The server should create random power ups in random coordinates between random time intervals. The power up message can be sent to the clients in such a message:
+"POWERUP 150 150 2"
+{powerupflag} {x_coordinate} {y_coordinate} {powerup (types NONE, 1, 2, 3...)}
+
+Then a power up should appear after the clients handle the message and the coordinate of the current power ups should be tracked so that if any of the players reach that coordinate, 
+then the power up should be activated for the player and disappear from the map. 
+
+For example: if powerup type something, then change player bullet speed to 10pixels per second 
+
+and this info will be sent by the client again to the other client and the other client will process this in the same way.
+
+##################################################################
+
+Game itself:
+- A resolution of 800*800 should be fine for this game
+- The map boundaries should be defined, obstacles should be defined as well.
+- Bullets should not pass obstacles.
+
+
+Server:
+- Start with "Connected" SYN
+- End with "Disconnected" FIN
+
+- Send player position if the player is moved
+- Keep track of the packages and add the player id before sending to all clients. Check the incoming message address.
+- Should determine which player starts in which position once the STP-OK is flag is sent. Player id could be used to do this.
+
+
+Client:
+- Sends packets continuously (idk how to spell this) in every x miliseconds
+- Checks the message flag first, flag is always the msg[0].
+    Possible flags to be received:
+    - SYN-OK
+    - FIN
+    - STP-OK
+    - MOVE
+    - POWERUP
+  After controlling each flag, the message will be handled differently by the client.
+- Receives the coordinates for both players after the STP-OK flag, updates the position of players and place them in the game map.
