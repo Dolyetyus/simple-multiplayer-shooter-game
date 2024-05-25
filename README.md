@@ -15,5 +15,8 @@ The game server (server.py) should be run first, and then each connected client 
 <br/>
 Rest of the game design can be found in ***gameplan.pdf*** (https://github.com/Dolyetyus/simple-multiplayer-shooter-game/blob/1b4045fd3fac92f4ffcf40fbc94b071432964136/game/game%20plan.pdf')
 
+**End product:** 
+https://csmusab.nl/img/py2.png
+
 
 
