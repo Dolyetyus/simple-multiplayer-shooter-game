@@ -1,6 +1,6 @@
 This is a simple, multiplayer, fast-paced shooter game made in python using pygame and UDP protocol for networking<br/>
 <br/>
-This project is made with the collaboration of Kuba Domagała for the course called Computer Networks at VU Amsterdam.<br/>
+This project is made with the collaboration of Kuba Domagała (@[KubaDomagala](https://github.com/KubaDomagala)) for the course called Computer Networks at VU Amsterdam.<br/>
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 The game server (server.py) should be run first, and then each connected client will spawn on the map in a random location. The purpose is to shoot other players without dying.<br/>
 <br/>
